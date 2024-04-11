@@ -1,13 +1,19 @@
 import express from "express";
 import { chats } from "./Data/data.js";
 import dotenv from "dotenv";
+import { connectDB } from "./config/db.js";
+import {router as userRoutes} from "./routes/userRoutes.js"
 
 const app = express();
 dotenv.config();
+app.use(express.json());
+connectDB();
 
 app.get("/", (req,res) => {
     res.send("A")
 })
+
+app.use('/api/user',userRoutes)
 
 app.get("/api/chat",(req,res)=>{
     res.send(chats)
