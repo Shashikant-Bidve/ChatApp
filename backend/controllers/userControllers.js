@@ -52,7 +52,25 @@ const authUser = asyncHandler(async (req, res) => {
             pic:newUser.pic,
             token: generateToken(newUser._id)
         }); 
+    }else{
+        res.status(404).json({
+            "message":"Error"
+        });
     }
 });
 
-export {registerUser, authUser};
+const allUsers = asyncHandler(async (req,res) => {
+    // query
+
+    const keyword = req.query.search?{
+        $or: [
+            {name : { $regex: req.query.search, $options: "i"}},
+            {email : { $regex: req.query.search, $options: "i"}},
+        ],
+    }:{};
+
+    const users = await User.find(keyword).find({_id: {$ne: req.user._id}});
+    res.send(users);
+});
+
+export {registerUser, authUser, allUsers};

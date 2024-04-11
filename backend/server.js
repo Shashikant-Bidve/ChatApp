@@ -3,6 +3,8 @@ import { chats } from "./Data/data.js";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import {router as userRoutes} from "./routes/userRoutes.js"
+import {router as chatRoutes} from "./routes/chatRoutes.js"
+import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
 dotenv.config();
@@ -15,15 +17,16 @@ app.get("/", (req,res) => {
 
 app.use('/api/user',userRoutes)
 
-app.get("/api/chat",(req,res)=>{
-    res.send(chats)
-})
+app.use("/api/chat",chatRoutes)
 
 app.get("/api/chat/:id",(req,res)=>{
     res.send(chats.filter((e)=>{
         return e._id == req.params.id;
     }))
 })
+
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

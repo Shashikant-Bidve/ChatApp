@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { VStack } from '@chakra-ui/react'
 import { FormControl, FormLabel } from '@chakra-ui/form-control'
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup,useToast } from '@chakra-ui/react'
+import axios from "axios";
+import {useHistory} from "react-router-dom"
 
 
 const Signup = () => {
@@ -13,15 +15,116 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState();
   const [password, setPassword] = useState();
   const [pic, setPic] = useState();
-  const [picLoading, setPicLoading] = useState(false);
+  const [Loading, setLoading] = useState(false);
+  const toast = useToast();
+  const history = useHistory();
 
-  const postDetails = (pic) => {
+  const postDetails = (pics) => {
+    setLoading(true);
+    if(pics === undefined){
+        toast({
+            title: "Please select an image!",
+            status: "warning",
+            duration:"5000",
+            isClosable: true,
+            position:"bottom",
+        });
+        return;
+    }
+    if(pics.type === "image/jpeg" || pics.type === "image/png"){
+        const data = new FormData();
 
+        data.append("file", pics);
+        data.append("upload_preset","ChatApp");
+        data.append("cloud_name","dsxcigtki");
+
+        fetch("https://api.cloudinary.com/v1_1/dsxcigtki/image/upload",{
+            method:"post",
+            body: data,
+        }).then((res)=> res.json())
+        .then((data) => {
+            setPic(data.url.toString());
+            console.log(data.url.toString());
+            setLoading(false);
+        }).catch((err)=>{
+            console.log(err);
+            setLoading(false);
+        })
+    }else{
+        toast({
+            title: "Please select an image!",
+            status: "warning",
+            duration:"5000",
+            isClosable: true,
+            position:"bottom",
+        });
+        return;
+    }
   }
 
-  const handleSubmit = ( ) => {
+  const handleSubmit = async () => {
+    setLoading(true);
+    if(!name || !email || !password || !confirmPassword)
+    {
+        toast({
+            title: "Please fill all the fields!",
+            status: "warning",
+            duration:"5000",
+            isClosable: true,
+            position:"bottom",
+        });
+        setLoading(false);
+        return;
+    }
+    if(password !== confirmPassword){
+        toast({
+            title: "Passwords do not match!",
+            status: "warning",
+            duration:"5000",
+            isClosable: true,
+            position:"bottom",
+        });
+        setLoading(false);
+        return;
+    }
 
+    try {
+        const config = {
+            headers : {
+                "Content-type" : "application/json"
+            },
+        };
+
+        const {data} = await axios.post("api/user",{
+            name, email, password, pic
+        },
+    config);
+
+    toast({
+        title: "Registration Successful!",
+        status: "warning",
+        duration:"5000",
+        isClosable: true,
+        position:"bottom",
+    });
+
+    localStorage.setItem("userInfo", JSON.stringify(data));
+    setLoading(false);
+    history.push("/chats");
+
+    } catch (error) {
+        toast({
+            title: "Error Occured!",
+            description: error.response.data.message,
+            status: "warning",
+            duration:"5000",
+            isClosable: true,
+            position:"bottom",
+        });
+        setLoading(false);
+    }
   }
+
 
   
   return (
@@ -63,14 +166,17 @@ const Signup = () => {
         <FormControl id="pic">
             <FormLabel>Upload your Profile image</FormLabel>
             <Input type='file' p = "1"  accept='image/*' onChange={(e)=>{
-                return postDetails(e.target.files[0]);
+            postDetails(e.target.files[0]);
             }}></Input>
         </FormControl>
 
-        <Button colorScheme='blue' width = "100%" style={{marginTop:15}} onSubmit={handleSubmit}> Sign Up</Button>
+        <Button colorScheme='blue' width = "100%" style={{marginTop:15}} onClick={()=>handleSubmit()}
+        isLoading={Loading}> Sign Up</Button>
 
     </VStack>
   )
 }
 
-export default Signup
+export default Signup;
+
+// https://api.cloudinary.com/v1_1/{dsxcigtki}/image/upload
