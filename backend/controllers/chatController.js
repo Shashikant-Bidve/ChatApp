@@ -67,7 +67,95 @@ const fetchChats = asyncHandler(async(req, res) => {
 })
 
 const createGroupChat = asyncHandler(async (req, res) => {
+    console.log("hello");
+    if(!req.body.users || !req.body.name){
+        return res.status(400).send({message : "Please fill all fields."});
+    }
+    let users = JSON.parse(req.body.users);
+
+    if(users.length < 2){
+        return res.status(400).send("More than 2 members are required");
+    }
+    
+    users.push(req.user);
+
+    try {
+        const grpChat = await Chat.create({
+            chatName : req.body.name,
+            users : users,
+            isGroupChat : true,
+            groupAdmin : req.user,
+        });
+
+        const fullGrpChat = await Chat.findOne({_id : grpChat._id})
+        .populate("users","-password")
+        .populate("groupAdmin","-password")
+
+        res.status(200).json(fullGrpChat);
+    } catch (error) {
+        
+    }
+})
+
+const renameGroup = asyncHandler( async(req, res) => {
+    const {chatId, chatName } = req.body;
+
+    const updatedChat = await Chat.findByIdAndUpdate(
+        chatId,
+        {
+            chatName
+        },{
+            new : true
+        }
+    ).populate("users","-password")
+    .populate("groupAdmin","-password")
+
+    if(!updatedChat) {
+        res.status(404);
+        throw new Error("Chat not found");
+    } else{
+        res.json(updatedChat);
+    }
+})
+
+const addGroup = asyncHandler( async(req, res) => {
+ const {chatId, userId} = req.body;
+
+ const added = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+        $push : {users : userId},
+    },{new : true}
+ ).populate("users","-password")
+ .populate("groupAdmin","-password");
+
+if(!added){
+    res.status(404);
+    throw new Error("Chat not found");
+}else{
+    res.json(added);
+}
 
 })
 
-export {accessChat, fetchChats, createGroupChat};
+const removeGroup = asyncHandler( async(req, res) => {
+    const {chatId, userId} = req.body;
+   
+    const added = await Chat.findByIdAndUpdate(
+       chatId,
+       {
+           $pull : {users : userId},
+       },{new : true}
+    ).populate("users","-password")
+    .populate("groupAdmin","-password");
+   
+   if(!added){
+       res.status(404);
+       throw new Error("Chat not found");
+   }else{
+       res.json(added);
+   }
+   
+   })
+
+export {accessChat, fetchChats, createGroupChat, renameGroup, addGroup, removeGroup};
