@@ -41,4 +41,4 @@ const UserListItem = ({user,handleFunction}) => {
   )
 }
 
-export default UserListItem
+export default UserListItem;

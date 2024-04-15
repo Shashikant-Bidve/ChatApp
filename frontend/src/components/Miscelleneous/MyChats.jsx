@@ -7,6 +7,7 @@ import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import ChatLoading from "../Miscelleneous/ChatLoading.jsx"
 import { getSender } from '../../config/ChatLogic.js';
+import GroupChatModal from './GroupChatModal.jsx';
 
 const MyChats = () => {
   const [loggedUser, setLoggedUser] = useState();
@@ -66,13 +67,15 @@ const MyChats = () => {
         justifyContent="space-between"
         alignItems="center"
       >My Chats
-      <Button
+      <GroupChatModal>
+        <Button
             display="flex"
             fontSize={{ base: "17px", md: "10px", lg: "17px" }}
             rightIcon={<AddIcon />}
           >
             New Group Chat
-      </Button>
+        </Button>
+      </GroupChatModal>
       </Box>
       <Box
         display="flex"
