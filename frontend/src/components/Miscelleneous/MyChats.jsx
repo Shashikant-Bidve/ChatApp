@@ -9,10 +9,10 @@ import ChatLoading from "../Miscelleneous/ChatLoading.jsx"
 import { getSender } from '../../config/ChatLogic.js';
 import GroupChatModal from './GroupChatModal.jsx';
 
-const MyChats = () => {
+const MyChats = ({fetchAgain}) => {
   const [loggedUser, setLoggedUser] = useState();
 
-  const { SelectedChat, setSelectedChat, user, chats, setChats } = ChatState();
+  const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
   const toast = useToast();
 
@@ -44,11 +44,11 @@ const MyChats = () => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
     // eslint-disable-next-line
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
-      display={{ base: SelectedChat ? "none" : "flex", md: "flex" }}
+      display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
       flexDir="column"
       alignItems="center"
       p={3}
@@ -93,8 +93,8 @@ const MyChats = () => {
             <Box
               onClick={() => setSelectedChat(chat)}
               cursor="pointer"
-              bg={SelectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-              color={SelectedChat === chat ? "white" : "black"}
+              bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+              color={selectedChat === chat ? "white" : "black"}
               px={3}
               py={2}
               borderRadius="lg"
