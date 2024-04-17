@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import {router as userRoutes} from "./routes/userRoutes.js"
 import {router as chatRoutes} from "./routes/chatRoutes.js"
+import {router as messageRoutes} from "./routes/messageRoutes.js"
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -19,11 +20,7 @@ app.use('/api/user',userRoutes)
 
 app.use("/api/chat",chatRoutes)
 
-app.get("/api/chat/:id",(req,res)=>{
-    res.send(chats.filter((e)=>{
-        return e._id == req.params.id;
-    }))
-})
+app.use("/api/message",messageRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
