@@ -1,24 +1,97 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ChatState } from '../../Context/ChatProvider.js';
-import { Box, IconButton, Text, useToast } from '@chakra-ui/react';
+import { Box, FormControl, IconButton, Input, Spinner, Text, useToast } from '@chakra-ui/react';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { getSender, getSenderFull } from '../../config/ChatLogic.js';
 import ProfileModal from './ProfileModal.jsx';
 import UpdateGroupChatModal from './UpdateGroupChatModal.jsx';
+import "../styles.css";
+import ScrollableChat from './ScrollableChat.jsx';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
     const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [newMessage, setNewMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
 
-    const fetchMessages = () => {
-        
+    const fetchMessages = async () => {
+      if (!selectedChat) return;
+
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+  
+        setLoading(true);
+  
+        const { data } = await axios.get(
+          `/api/message/${selectedChat._id}`,
+          config
+        );
+        setMessages(data);
+        setLoading(false);
+  
+        socket.emit("join chat", selectedChat._id);
+      } catch (error) {
+        toast({
+          title: "Error Occured!",
+          description: "Failed to Load the Messages",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+    }
+
+    useEffect(() => {
+      fetchMessages();
+  
+      selectedChatCompare = selectedChat;
+      // eslint-disable-next-line
+    }, [selectedChat]);
+
+    const sendMessage = async (e) => {
+      if(e.key === "Enter" && newMessage ){
+        try {
+          const config = {
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+          setNewMessage("");
+          const { data } = await axios.post(
+            "/api/message",
+            {
+              content: newMessage,
+              chatId: selectedChat,
+            },
+            config
+          );
+          // socket.emit("new message", data);
+          setMessages([...messages, data]);
+        } catch (error) {
+          toast({
+            title: "Error Occured!",
+            description: "Failed to send the Message",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });}
+        }
+    }
+
+    const typingHandler = (e) => {
+      setNewMessage(e.target.value);
     }
 
   return (
@@ -59,7 +132,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </>
               ))}
           </Text>
-          {/* <Box
+           <Box
             display="flex"
             flexDir="column"
             justifyContent="flex-end"
@@ -110,7 +183,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 onChange={typingHandler}
               />
             </FormControl>
-      </Box> */}
+      </Box> 
         </>
       ) : (
         // to get socket.io on same page
