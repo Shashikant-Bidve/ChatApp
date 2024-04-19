@@ -7,6 +7,11 @@ import ProfileModal from './ProfileModal.jsx';
 import UpdateGroupChatModal from './UpdateGroupChatModal.jsx';
 import "../styles.css";
 import ScrollableChat from './ScrollableChat.jsx';
+import axios from 'axios';
+import io from "socket.io-client";
+
+const ENDPOINT = "http://localhost:5000";
+let socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
@@ -37,7 +42,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         );
         setMessages(data);
         setLoading(false);
-  
+        // join room
         socket.emit("join chat", selectedChat._id);
       } catch (error) {
         toast({
@@ -89,6 +94,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           });}
         }
     }
+
+    useEffect(()=>{
+      socket = io(ENDPOINT);
+      socket.emit("setup",user);
+      
+      socket.on("connected",()=>{
+        setSocketConnected(true);
+      })
+    },[]);
 
     const typingHandler = (e) => {
       setNewMessage(e.target.value);
@@ -165,12 +179,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             >
               {istyping ? (
                 <div>
-                  <Lottie
+                  {/* <Lottie
                     options={defaultOptions}
                     // height={50}
                     width={70}
                     style={{ marginBottom: 15, marginLeft: 0 }}
-                  />
+                  /> */}
                 </div>
               ) : (
                 <></>
