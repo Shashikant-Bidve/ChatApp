@@ -123,6 +123,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         if(!selectedChatCompare || selectedChatCompare._id !== newMessageRecieved.chat._id)
         {
             // give Notification
+            if(!notification.includes(newMessageRecieved)){
+              setNotification([newMessageRecieved,...notification]);
+              setFetchAgain(!fetchAgain);
+            }
         }else{
           setMessages([...messages, newMessageRecieved]);
         }
