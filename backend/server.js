@@ -8,6 +8,7 @@ import {router as messageRoutes} from "./routes/messageRoutes.js"
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import {createServer} from "http";
 import {Server} from "socket.io";
+import path from "path";
 
 const app = express();
 dotenv.config();
@@ -21,15 +22,29 @@ const io = new Server(httpServer, {
     }
 });
 
-app.get("/", (req,res) => {
-    res.send("A")
-})
 
 app.use('/api/user',userRoutes)
 
 app.use("/api/chat",chatRoutes)
 
 app.use("/api/message",messageRoutes);
+
+// Deployment
+
+const __dirname1 = path.resolve();
+if(process.env.NODE_ENV === "production"){
+    app.use(express.static(path.join(__dirname1, '/frontend/build')));
+
+    app.get('*',(req, res) => {
+        res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
+    });
+}else{
+    app.get("/", (req,res) => {
+        res.send("Running in testing.")
+    })
+}
+
+//
 
 app.use(notFound);
 app.use(errorHandler);
