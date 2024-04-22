@@ -12,7 +12,7 @@ import io from "socket.io-client";
 import Lottie, {} from "react-lottie";
 import animationData from "../../Animation - 1713558708658.json";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://chatapp-mklf.onrender.com";
 let socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
