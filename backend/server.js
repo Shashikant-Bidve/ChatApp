@@ -6,7 +6,7 @@ import {router as userRoutes} from "./routes/userRoutes.js"
 import {router as chatRoutes} from "./routes/chatRoutes.js"
 import {router as messageRoutes} from "./routes/messageRoutes.js"
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
-import {createServer} from "http";
+import {createServer} from "node:http";
 import {Server} from "socket.io";
 import path from "path";
 
@@ -31,25 +31,26 @@ app.use("/api/message",messageRoutes);
 
 // Deployment
 
-const __dirname1 = path.resolve();
-if(process.env.NODE_ENV === "production"){
-    app.use(express.static(path.join(__dirname1, '/frontend/build')));
+// const __dirname1 = path.resolve();
+// if(process.env.NODE_ENV === "production"){
+//     app.use(express.static(path.join(__dirname1, '/frontend/build')));
 
-    app.get('*',(req, res) => {
-        res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
-    });
-}else{
-    app.get("/", (req,res) => {
-        res.send("Running in testing.")
-    })
-}
+//     app.get('*',(req, res) => {
+//         res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
+//     });
+// }else{
+//     app.get("/", (req,res) => {
+//         res.send("Running in testing.")
+//     })
+// }
 
 //
+
 
 app.use(notFound);
 app.use(errorHandler);
 
-io.on("connection",(socket) => {
+io.on('connection',(socket) => {
     console.log("Connected to socket.io");
 
     socket.on("setup",(userData) => {
