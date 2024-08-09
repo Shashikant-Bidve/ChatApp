@@ -31,4 +31,4 @@ Uses Socket.io for real time communication and stores user details in encrypted 
 ![](https://github.com/Shashikant-Bidve/ChatApp/blob/main/Screenshot/Notification.png)
 
 ### Demo
-![](https://github.com/Shashikant-Bidve/ChatApp/blob/main/Screenshot/ChatApp.mp4)
+[![Watch the video](https://github.com/Shashikant-Bidve/ChatApp/blob/main/Screenshot/login.png)](https://github.com/Shashikant-Bidve/ChatApp/blob/main/Screenshot/ChatApp.mp4)
